@@ -1,0 +1,13 @@
+# Arquivos do macOS
+.DS_Store
+
+# Arquivos temporarios locais
+tmp/
+requisitos-mvp.pdf
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
