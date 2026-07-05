@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kanban de Estudos - MVP</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topo-aplicacao">
+      <div class="marca-aplicacao">
+        <p class="rotulo-topo">MVP Full Stack</p>
+        <h1>Kanban de Estudos</h1>
+        <p class="texto-topo">Acompanhe tarefas, prioridades e prazos em um quadro integrado a API Flask.</p>
+      </div>
+
+      <div class="estado-api" aria-live="polite">
+        <span id="marcador-api" class="marcador-api aguardando"></span>
+        <div>
+          <strong id="texto-api">Verificando API</strong>
+          <span id="endereco-api">http://127.0.0.1:5001</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="conteudo-principal">
+      <div id="aviso-aplicacao" class="aviso-aplicacao" role="status" aria-live="polite"></div>
+
+      <section class="faixa-resumo" aria-labelledby="titulo-resumo">
+        <div class="cabecalho-secao">
+          <div>
+            <p class="rotulo-secao">Resumo</p>
+            <h2 id="titulo-resumo">Painel do quadro</h2>
+          </div>
+          <button id="botao-atualizar" class="botao-secundario" type="button">Atualizar</button>
+        </div>
+
+        <div class="grade-indicadores">
+          <article class="indicador">
+            <span>Total</span>
+            <strong id="total-tarefas">0</strong>
+          </article>
+          <article class="indicador">
+            <span>Abertas</span>
+            <strong id="tarefas-abertas">0</strong>
+          </article>
+          <article class="indicador">
+            <span>Concluidas</span>
+            <strong id="tarefas-concluidas">0</strong>
+          </article>
+          <article class="indicador alerta">
+            <span>Atrasadas</span>
+            <strong id="tarefas-atrasadas">0</strong>
+          </article>
+        </div>
+
+        <div class="grade-distribuicao">
+          <div>
+            <h3>Por prioridade</h3>
+            <div id="resumo-prioridades" class="lista-resumo"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="area-trabalho">
+        <aside class="painel-formulario" aria-labelledby="titulo-nova-tarefa">
+          <div class="cabecalho-secao compacto">
+            <div>
+              <p class="rotulo-secao">Cadastro</p>
+              <h2 id="titulo-nova-tarefa">Nova tarefa</h2>
+            </div>
+          </div>
+
+          <form id="formulario-tarefa" class="formulario">
+            <label for="titulo-tarefa">Titulo</label>
+            <input id="titulo-tarefa" name="titulo" type="text" maxlength="120" required>
+
+            <label for="descricao-tarefa">Descricao</label>
+            <textarea id="descricao-tarefa" name="descricao" rows="4"></textarea>
+
+            <div class="grade-campos">
+              <div>
+                <label for="prioridade-tarefa">Prioridade</label>
+                <select id="prioridade-tarefa" name="prioridade">
+                  <option value="baixa">Baixa</option>
+                  <option value="media" selected>Media</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="prazo-tarefa">Prazo</label>
+                <input id="prazo-tarefa" name="prazo" type="date">
+              </div>
+            </div>
+
+            <label for="coluna-tarefa">Coluna inicial</label>
+            <select id="coluna-tarefa" name="coluna_id"></select>
+
+            <button class="botao-primario" type="submit">Cadastrar tarefa</button>
+          </form>
+        </aside>
+
+        <section class="quadro-kanban" aria-labelledby="titulo-quadro">
+          <div class="cabecalho-secao">
+            <div>
+              <p class="rotulo-secao">Kanban</p>
+              <h2 id="titulo-quadro">Tarefas por etapa</h2>
+            </div>
+
+            <div class="filtros-quadro">
+              <label for="filtro-prioridade">Prioridade</label>
+              <select id="filtro-prioridade">
+                <option value="">Todas</option>
+                <option value="baixa">Baixa</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+              </select>
+
+              <label for="filtro-concluida">Status</label>
+              <select id="filtro-concluida">
+                <option value="">Todos</option>
+                <option value="false">Abertas</option>
+                <option value="true">Concluidas</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="quadro-colunas" class="grade-colunas" aria-live="polite"></div>
+        </section>
+      </section>
+
+    </main>
+
+    <div id="modal-edicao" class="modal-edicao" role="dialog" aria-modal="true" aria-labelledby="titulo-edicao" hidden>
+      <section class="modal-conteudo painel-edicao">
+        <div class="cabecalho-secao compacto">
+          <div>
+            <p class="rotulo-secao">Detalhe</p>
+            <h2 id="titulo-edicao">Editar tarefa</h2>
+          </div>
+          <button id="botao-fechar-edicao" class="botao-fechar" type="button" aria-label="Fechar edicao">X</button>
+        </div>
+
+        <form id="formulario-edicao" class="formulario">
+          <input id="edicao-id" type="hidden">
+
+          <label for="edicao-titulo">Titulo</label>
+          <input id="edicao-titulo" type="text" maxlength="120" required>
+
+          <label for="edicao-descricao">Descricao</label>
+          <textarea id="edicao-descricao" rows="4"></textarea>
+
+          <div class="grade-campos">
+            <div>
+              <label for="edicao-prioridade">Prioridade</label>
+              <select id="edicao-prioridade">
+                <option value="baixa">Baixa</option>
+                <option value="media">Media</option>
+                <option value="alta">Alta</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="edicao-prazo">Prazo</label>
+              <input id="edicao-prazo" type="date">
+            </div>
+          </div>
+
+          <label for="edicao-coluna">Coluna</label>
+          <select id="edicao-coluna"></select>
+
+          <label class="campo-checkbox" for="edicao-concluida">
+            <input id="edicao-concluida" type="checkbox">
+            <span>Tarefa concluida</span>
+          </label>
+
+          <div class="linha-botoes">
+            <button id="botao-salvar-edicao" class="botao-primario" type="submit">Salvar edicao</button>
+            <button id="botao-cancelar-edicao" class="botao-secundario" type="button">Cancelar</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
