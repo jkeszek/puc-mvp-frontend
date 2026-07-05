@@ -56,6 +56,7 @@ function configurarEventos() {
   elementos.formularioEdicao.addEventListener("submit", salvarEdicao);
   elementos.botaoCancelarEdicao.addEventListener("click", limparEdicao);
   elementos.botaoFecharEdicao.addEventListener("click", limparEdicao);
+  elementos.edicaoColuna.addEventListener("change", sincronizarConclusaoPelaColuna);
   elementos.modalEdicao.addEventListener("click", fecharModalPeloFundo);
   document.addEventListener("keydown", fecharModalPeloTeclado);
 
@@ -127,10 +128,18 @@ async function cadastrarTarefa(evento) {
   }
 
   try {
-    await chamarApi("/tarefas", {
+    const tarefa = await chamarApi("/tarefas", {
       method: "POST",
       body: JSON.stringify(dados),
     });
+
+    if (colunaEstaConcluida(tarefa.coluna?.id || dados.coluna_id)) {
+      await chamarApi(`/tarefas/${tarefa.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ concluida: true }),
+      });
+    }
+
     elementos.formularioTarefa.reset();
     elementos.prioridadeTarefa.value = "media";
     selecionarPrimeiraColuna();
@@ -164,7 +173,7 @@ async function salvarEdicao(evento) {
     descricao: elementos.edicaoDescricao.value.trim(),
     prioridade: elementos.edicaoPrioridade.value,
     prazo: elementos.edicaoPrazo.value || "",
-    concluida: elementos.edicaoConcluida.checked,
+    concluida: colunaEstaConcluida(elementos.edicaoColuna.value),
     coluna_id: Number(elementos.edicaoColuna.value),
   };
 
@@ -406,8 +415,17 @@ function preencherEdicao(tarefa) {
   elementos.edicaoPrioridade.value = tarefa.prioridade || "media";
   elementos.edicaoPrazo.value = tarefa.prazo || "";
   preencherSelectColunas(elementos.edicaoColuna, String(tarefa.coluna?.id || ""));
-  elementos.edicaoConcluida.checked = Boolean(tarefa.concluida);
+  sincronizarConclusaoPelaColuna();
   abrirModalEdicao();
+}
+
+function sincronizarConclusaoPelaColuna() {
+  elementos.edicaoConcluida.checked = colunaEstaConcluida(elementos.edicaoColuna.value);
+}
+
+function colunaEstaConcluida(colunaId) {
+  const coluna = estado.colunas.find((item) => item.id === Number(colunaId));
+  return Number(colunaId) === 3 || coluna?.nome?.toLowerCase() === "concluido";
 }
 
 function limparEdicao() {
