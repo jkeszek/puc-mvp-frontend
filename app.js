@@ -27,7 +27,6 @@ function mapearElementos() {
   elementos.tarefasAbertas = document.querySelector("#tarefas-abertas");
   elementos.tarefasConcluidas = document.querySelector("#tarefas-concluidas");
   elementos.tarefasAtrasadas = document.querySelector("#tarefas-atrasadas");
-  elementos.resumoPrioridades = document.querySelector("#resumo-prioridades");
   elementos.formularioTarefa = document.querySelector("#formulario-tarefa");
   elementos.tituloTarefa = document.querySelector("#titulo-tarefa");
   elementos.descricaoTarefa = document.querySelector("#descricao-tarefa");
@@ -265,30 +264,6 @@ function renderizarResumo(resumo) {
   elementos.tarefasAbertas.textContent = resumo?.tarefas_abertas ?? 0;
   elementos.tarefasConcluidas.textContent = resumo?.tarefas_concluidas ?? 0;
   elementos.tarefasAtrasadas.textContent = resumo?.tarefas_atrasadas ?? 0;
-
-  const prioridades = Object.entries(resumo?.por_prioridade || {}).map(([nome, total]) => ({ nome, total }));
-  renderizarListaResumo(
-    elementos.resumoPrioridades,
-    prioridades,
-    (item) => formatarPrioridade(item.nome),
-    (item) => item.total,
-  );
-}
-
-function renderizarListaResumo(elemento, itens, obterNome, obterTotal) {
-  elemento.innerHTML = "";
-
-  if (!itens.length) {
-    elemento.appendChild(criarMensagemVazia("Sem dados."));
-    return;
-  }
-
-  itens.forEach((item) => {
-    const linha = document.createElement("div");
-    linha.className = "item-resumo";
-    linha.innerHTML = `<span>${escaparTexto(obterNome(item))}</span><strong>${obterTotal(item)}</strong>`;
-    elemento.appendChild(linha);
-  });
 }
 
 function renderizarOpcoesColuna() {
